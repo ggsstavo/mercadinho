@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mercadinho do Bairro — Consulta de Preços</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --verde:       #1a3d2b;
+      --verde-med:   #2d6a4f;
+      --verde-light: #52b788;
+      --verde-pale:  #d8f3dc;
+      --creme:       #f7f3ec;
+      --creme-dark:  #ede8df;
+      --dourado:     #d4a853;
+      --text:        #1c1c1c;
+      --text-mid:    #4a4a4a;
+      --text-muted:  #8a8a8a;
+      --white:       #ffffff;
+      --shadow-sm:   0 2px 8px rgba(0,0,0,0.07);
+      --shadow-md:   0 6px 24px rgba(0,0,0,0.11);
+      --radius:      14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--creme); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    header { background: var(--verde); position: relative; overflow: hidden; padding: 0 24px; }
+    header::before { content:''; position:absolute; top:-60px; right:-80px; width:340px; height:340px; border-radius:50%; background:rgba(255,255,255,0.04); pointer-events:none; }
+    header::after  { content:''; position:absolute; bottom:-40px; left:10%; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.03); pointer-events:none; }
+    .header-inner { max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:22px 0; position:relative; z-index:1; }
+    .logo { display:flex; align-items:center; gap:14px; }
+    .logo-icon { width:46px; height:46px; background:var(--dourado); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+    .logo-text h1 { font-family:'Fraunces',serif; font-size:22px; color:#fff; letter-spacing:-0.5px; line-height:1.1; }
+    .logo-text p  { font-size:12px; color:rgba(255,255,255,0.5); margin-top:2px; letter-spacing:0.5px; }
+    .badge-live { padding:5px 14px; border-radius:999px; font-size:12px; font-weight:600; background:rgba(82,183,136,0.2); color:#74c69d; border:1px solid rgba(82,183,136,0.3); }
+
+    /* HERO / SEARCH */
+    .hero-strip { background:var(--verde); padding:0 24px 32px; }
+    .hero-strip-inner { max-width:1100px; margin:0 auto; position:relative; z-index:1; }
+    .hero-strip p { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:18px; }
+    .search-wrap { position:relative; max-width:600px; }
+    .search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); pointer-events:none; }
+    .search-input {
+      width:100%; padding:14px 44px 14px 46px;
+      border:none; border-radius:12px;
+      font-family:'DM Sans',sans-serif; font-size:15px;
+      background:rgba(255,255,255,0.12); color:white; outline:none;
+      transition:background 0.2s;
+    }
+    .search-input::placeholder { color:rgba(255,255,255,0.45); }
+    .search-input:focus { background:rgba(255,255,255,0.18); }
+    .search-clear { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:26px; height:26px; display:none; align-items:center; justify-content:center; color:white; cursor:pointer; font-size:14px; }
+    .search-clear.visible { display:flex; }
+
+    /* MAIN */
+    main { max-width:1100px; margin:0 auto; padding:32px 24px 60px; }
+
+    /* CATEGORIES */
+    .cat-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; }
+    .cat-btn { display:flex; align-items:center; gap:6px; padding:8px 18px; border-radius:999px; border:1.5px solid var(--creme-dark); background:var(--white); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--text-mid); cursor:pointer; transition:all 0.18s; }
+    .cat-btn:hover { border-color:var(--verde-light); color:var(--verde); }
+    .cat-btn.active { background:var(--verde); border-color:var(--verde); color:white; }
+    .cat-btn .cat-count { background:rgba(0,0,0,0.08); border-radius:999px; padding:0 7px; font-size:11px; font-weight:600; }
+    .cat-btn.active .cat-count { background:rgba(255,255,255,0.2); }
+
+    /* STATS */
+    .stats-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:8px; }
+    .stats-bar p { font-size:14px; color:var(--text-muted); }
+    .stats-bar strong { color:var(--text); }
+    .stats-bar em { color:var(--verde-med); font-style:normal; font-weight:600; }
+
+    /* GRID */
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:16px; }
+    .card { background:var(--white); border-radius:var(--radius); border:1.5px solid var(--creme-dark); padding:18px; display:flex; flex-direction:column; gap:10px; transition:transform 0.2s,box-shadow 0.2s,border-color 0.2s; animation:fadeUp 0.35s ease both; }
+    .card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); border-color:var(--verde-pale); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .card-cat { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:4px 10px; border-radius:999px; align-self:flex-start; }
+    .card-name { font-weight:600; font-size:15px; color:var(--text); line-height:1.4; flex:1; }
+    .card-bottom { display:flex; align-items:flex-end; justify-content:space-between; margin-top:4px; }
+    .card-price { font-family:'Fraunces',serif; font-size:26px; font-weight:700; color:var(--verde-med); line-height:1; }
+    .card-price span { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:400; color:var(--text-muted); margin-left:3px; }
+    .card-divider { height:1px; background:var(--creme-dark); margin:2px 0; }
+
+    /* EMPTY */
+    .empty { grid-column:1/-1; text-align:center; padding:80px 20px; }
+    .empty-icon { font-size:52px; margin-bottom:14px; }
+    .empty h3 { font-family:'Fraunces',serif; font-size:22px; color:var(--text-mid); margin-bottom:8px; }
+    .empty p { font-size:14px; color:var(--text-muted); }
+
+    /* LOADING */
+    .loading { grid-column:1/-1; text-align:center; padding:80px 20px; }
+    .loading-spinner { width:40px; height:40px; border:3px solid var(--creme-dark); border-top-color:var(--verde-med); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .loading p { font-size:15px; color:var(--text-muted); }
+
+    /* ERROR */
+    .error-banner { background:#fef2f2; border:1px solid #fecaca; border-radius:12px; padding:16px 20px; color:#dc2626; font-size:14px; margin-bottom:20px; display:none; align-items:center; gap:10px; }
+    .error-banner.visible { display:flex; }
+
+    /* CATEGORY COLORS */
+    .c-hortifruti { background:#dcfce7; color:#166534; }
+    .c-laticinios  { background:#dbeafe; color:#1e40af; }
+    .c-carnes      { background:#fee2e2; color:#991b1b; }
+    .c-bebidas     { background:#cffafe; color:#155e75; }
+    .c-padaria     { background:#fef3c7; color:#92400e; }
+    .c-limpeza     { background:#ede9fe; color:#5b21b6; }
+    .c-higiene     { background:#fce7f3; color:#9d174d; }
+
+    footer { text-align:center; padding:24px; font-size:12px; color:var(--text-muted); border-top:1px solid var(--creme-dark); }
+
+    @media(max-width:600px){
+      .logo-text p{display:none;}
+      .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+      .hero-strip{padding:0 16px 24px;}
+      main{padding:24px 16px 48px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🛒</div>
+      <div class="logo-text">
+        <h1>Mercadinho do Bairro</h1>
+        <p>CONSULTA DE PREÇOS</p>
+      </div>
+    </div>
+    <span class="badge-live" id="badge">● Carregando...</span>
+  </div>
+</header>
+
+<!-- SEARCH -->
+<div class="hero-strip">
+  <div class="hero-strip-inner">
+    <p>Digite o nome do produto para consultar o preço</p>
+    <div class="search-wrap">
+      <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input
+        type="text"
+        class="search-input"
+        id="searchInput"
+        placeholder="Ex: arroz, frango, leite..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        data-form-type="other"
+      />
+      <button class="search-clear" id="clearSearch">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div class="error-banner" id="errorBanner">
+    <span>⚠️</span><span id="errorMsg">Erro ao carregar produtos.</span>
+  </div>
+  <div class="cat-row" id="catRow"></div>
+  <div class="stats-bar">
+    <p id="statsText"></p>
+  </div>
+  <div class="grid" id="grid">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <p>Buscando produtos...</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span id="footerText">Conectando ao banco de dados...</span>
+</footer>
+
+<script>
+  // ── CONFIGURAÇÃO SUPABASE ─────────────────────────────
+  const SUPABASE_URL = "https://qxtimhlhvgetkrzvtsoh.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_azVTQXcJCSOF48M_ucP2KA_6YHvQpnN";
+
+  // ── CONSTANTES ────────────────────────────────────────
+  const CAT_CLASS = {
+    "Hortifruti":"c-hortifruti","Laticínios":"c-laticinios",
+    "Carnes":"c-carnes","Bebidas":"c-bebidas","Padaria":"c-padaria",
+    "Limpeza":"c-limpeza","Higiene":"c-higiene"
+  };
+  const CAT_EMOJI = {
+    "Todos":"🛒","Hortifruti":"🥬","Laticínios":"🧀",
+    "Carnes":"🥩","Bebidas":"🥤","Padaria":"🍞",
+    "Limpeza":"🧹","Higiene":"🧼"
+  };
+
+  // ── ESTADO ────────────────────────────────────────────
+  let allProducts = [];
+  let activeCategory = "Todos";
+  let searchTerm = "";
+
+  // ── FORMATAR PREÇO ────────────────────────────────────
+  function fmt(v) {
+    return new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v);
+  }
+
+  // ── RENDER CATEGORIAS ─────────────────────────────────
+  function renderCategories() {
+    const counts = {};
+    allProducts.forEach(p => { counts[p.categoria] = (counts[p.categoria]||0)+1; });
+    const cats = ["Todos", ...Object.keys(counts)];
+    document.getElementById("catRow").innerHTML = cats.map(c => {
+      const count = c === "Todos" ? allProducts.length : (counts[c]||0);
+      return `<button class="cat-btn ${activeCategory===c?"active":""}" onclick="setCategory('${c}')">
+        ${CAT_EMOJI[c]||"📦"} ${c}
+        <span class="cat-count">${count}</span>
+      </button>`;
+    }).join("");
+  }
+
+  // ── RENDER GRID ───────────────────────────────────────
+  function renderGrid() {
+    let data = allProducts;
+    if (activeCategory !== "Todos") data = data.filter(p => p.categoria === activeCategory);
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      data = data.filter(p => p.nome.toLowerCase().includes(s));
+    }
+
+    let txt = `<strong>${data.length}</strong> produto${data.length!==1?"s":""} encontrado${data.length!==1?"s":""}`;
+    if (searchTerm)         txt += ` para "<em>${searchTerm}</em>"`;
+    if (activeCategory!=="Todos") txt += ` em <em>${activeCategory}</em>`;
+    document.getElementById("statsText").innerHTML = txt;
+
+    if (data.length === 0) {
+      document.getElementById("grid").innerHTML = `<div class="empty">
+        <div class="empty-icon">🔍</div>
+        <h3>Nenhum produto encontrado</h3>
+        <p>Tente outro nome ou mude de categoria</p>
+      </div>`;
+      return;
+    }
+
+    document.getElementById("grid").innerHTML = data.map((p, i) => {
+      const cls = CAT_CLASS[p.categoria] || "";
+      return `<div class="card" style="animation-delay:${i*0.03}s">
+        <span class="card-cat ${cls}">${p.categoria}</span>
+        <div class="card-divider"></div>
+        <p class="card-name">${p.nome}</p>
+        <div class="card-bottom">
+          <div class="card-price">${fmt(p.preco)}<span>/${p.unidade}</span></div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function render() { renderCategories(); renderGrid(); }
+  function setCategory(c) { activeCategory = c; render(); }
+
+  // ── SEARCH ────────────────────────────────────────────
+  document.getElementById("searchInput").addEventListener("input", function() {
+    searchTerm = this.value.trim();
+    document.getElementById("clearSearch").classList.toggle("visible", searchTerm.length > 0);
+    renderGrid();
+  });
+  document.getElementById("clearSearch").addEventListener("click", function() {
+    searchTerm = "";
+    document.getElementById("searchInput").value = "";
+    this.classList.remove("visible");
+    renderGrid();
+  });
+
+  // ── BUSCAR DO SUPABASE ────────────────────────────────
+  async function loadProducts() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/produtos?select=*&order=nome.asc`, {
+        headers: {
+          "apikey": SUPABASE_KEY,
+          "Authorization": `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || `Erro HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error("A tabela 'produtos' está vazia. Execute o SQL no Supabase primeiro.");
+      }
+
+      allProducts = data;
+
+      document.getElementById("badge").textContent = "● Ao Vivo";
+      document.getElementById("footerText").textContent =
+        `${data.length} produtos carregados do Supabase em tempo real`;
+
+      render();
+
+    } catch(e) {
+      document.getElementById("badge").textContent = "● Erro";
+      document.getElementById("badge").style.background = "rgba(220,38,38,0.2)";
+      document.getElementById("badge").style.color = "#fca5a5";
+      document.getElementById("badge").style.borderColor = "rgba(220,38,38,0.3)";
+
+      const banner = document.getElementById("errorBanner");
+      document.getElementById("errorMsg").textContent = e.message;
+      banner.classList.add("visible");
+
+      document.getElementById("grid").innerHTML = `<div class="empty">
+        <div class="empty-icon">⚠️</div>
+        <h3>Erro ao carregar</h3>
+        <p>${e.message}</p>
+      </div>`;
+      document.getElementById("footerText").textContent = "Falha na conexão com o banco de dados.";
+    }
+  }
+
+  // ── INICIAR ───────────────────────────────────────────
+  loadProducts();
+</script>
+
+</body>
+</html>
