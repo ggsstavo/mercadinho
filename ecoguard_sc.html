@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EcoGuard SC — Unidades de Conservação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,700;0,900;1,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+:root{
+  --v1:#0d3320;--v2:#1a4a2e;--v3:#2d6a4f;--v4:#52b788;--v5:#b7e4c7;--v6:#d8f3dc;
+  --bg:#f0faf3;--bg2:#e6f4ea;--branco:#fff;
+  --text:#1a1a1a;--text2:#3d4a3e;--text3:#7a8a7b;
+  --dourado:#c9a227;--dourado2:#fef3c7;
+  --amber:#d97706;--amber2:#fef3c7;
+  --azul:#1d4ed8;--azul2:#dbeafe;
+  --red:#dc2626;--red2:#fef2f2;
+  --sh1:0 2px 8px rgba(0,0,0,0.07);--sh2:0 6px 24px rgba(0,0,0,0.11);--sh3:0 20px 60px rgba(0,0,0,0.15);
+  --r:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+img{max-width:100%;display:block;}
+
+/* ─── HEADER ─── */
+header{background:var(--v1);padding:0 24px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.3);}
+.hd{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 0;}
+.hd-brand{display:flex;align-items:center;gap:12px;}
+.hd-logo{width:42px;height:42px;background:var(--dourado);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.hd-text h1{font-family:'Fraunces',serif;font-size:20px;color:#fff;letter-spacing:-0.3px;line-height:1;}
+.hd-text p{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:1.2px;text-transform:uppercase;}
+.hd-right{display:flex;align-items:center;gap:10px;}
+.badge-hd{padding:5px 13px;border-radius:999px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.badge-loading{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.12);}
+.badge-live{background:rgba(82,183,136,0.15);color:#74c69d;border:1px solid rgba(82,183,136,0.25);}
+.badge-err{background:rgba(220,38,38,0.15);color:#fca5a5;border:1px solid rgba(220,38,38,0.25);}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+/* ─── PORTAL VIEW ─── */
+#view-portal{}
+
+/* hero */
+.hero{background:linear-gradient(155deg,#0d3320 0%,#1a4a2e 50%,#2d6a4f 100%);padding:48px 24px 52px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-80px;right:-100px;width:450px;height:450px;border-radius:50%;background:rgba(255,255,255,0.03);}
+.hero::after{content:'';position:absolute;bottom:-60px;left:5%;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.02);}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:32px;}
+.hero-copy{}
+.hero-eyebrow{font-size:12px;font-weight:600;color:var(--v4);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.hero-title{font-family:'Fraunces',serif;font-size:36px;color:#fff;line-height:1.15;letter-spacing:-1px;max-width:500px;}
+.hero-title em{color:var(--dourado);font-style:normal;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,0.5);margin-top:10px;max-width:480px;line-height:1.6;}
+.hero-chips{display:flex;gap:10px;flex-wrap:wrap;}
+.chip{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 16px;text-align:center;min-width:100px;}
+.chip-val{font-family:'Fraunces',serif;font-size:26px;color:#fff;line-height:1;}
+.chip-lbl{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;display:flex;align-items:center;justify-content:center;gap:4px;}
+
+/* search bar */
+.search-outer{position:relative;}
+.s-icon{position:absolute;left:17px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.4);font-size:14px;pointer-events:none;}
+.search-input{width:100%;max-width:700px;padding:13px 46px 13px 44px;border:1.5px solid rgba(255,255,255,0.12);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;background:rgba(255,255,255,0.09);color:#fff;outline:none;transition:all 0.2s;}
+.search-input::placeholder{color:rgba(255,255,255,0.35);}
+.search-input:focus{background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.22);}
+.s-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.1);border:none;border-radius:7px;width:28px;height:28px;display:none;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;}
+.s-clear:hover{background:rgba(255,255,255,0.18);}
+.s-clear.vis{display:flex;}
+.s-hint{font-size:12px;color:rgba(255,255,255,0.25);margin-top:8px;}
+.s-hint kbd{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:4px;padding:1px 6px;font-size:11px;}
+
+/* main portal */
+.portal-main{max-width:1200px;margin:0 auto;padding:32px 24px 60px;}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px;}
+.section-hd h2{font-family:'Fraunces',serif;font-size:22px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.section-hd h2 i{color:var(--v4);font-size:18px;}
+.result-count{font-size:14px;color:var(--text3);}
+.result-count strong{color:var(--text);}
+.result-count em{color:var(--v3);font-style:normal;font-weight:600;}
+
+/* UC GRID */
+.uc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px;}
+.uc-card{background:var(--branco);border-radius:var(--r);overflow:hidden;border:1.5px solid var(--bg2);cursor:pointer;transition:transform 0.22s,box-shadow 0.22s,border-color 0.22s;animation:fadeUp 0.35s ease both;}
+.uc-card:hover{transform:translateY(-5px);box-shadow:var(--sh2);border-color:var(--v5);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.uc-img{width:100%;height:200px;object-fit:cover;display:block;background:var(--bg2);}
+.uc-img-ph{width:100%;height:200px;display:flex;align-items:center;justify-content:center;font-size:40px;background:linear-gradient(135deg,var(--v2),var(--v3));}
+.uc-body{padding:18px;}
+.uc-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);margin-bottom:10px;}
+.uc-meta i{color:var(--v4);}
+.uc-name{font-family:'Fraunces',serif;font-size:18px;color:var(--text);line-height:1.3;margin-bottom:6px;}
+.uc-mun{font-size:13px;font-weight:600;color:var(--v3);display:flex;align-items:center;gap:5px;margin-bottom:16px;}
+.uc-mun i{font-size:12px;}
+.uc-desc{font-size:13px;color:var(--text3);line-height:1.55;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.btn-det{display:inline-flex;align-items:center;gap:7px;background:var(--v2);color:#fff;border:none;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.18s;}
+.btn-det:hover{background:var(--v3);}
+
+/* ─── DETAIL VIEW ─── */
+#view-detail{display:none;}
+.det-hero{position:relative;height:340px;overflow:hidden;}
+.det-hero-img{width:100%;height:100%;object-fit:cover;}
+.det-hero-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--v1),var(--v3));}
+.det-hero-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,0.72) 0%,rgba(0,0,0,0.1) 60%);}
+.det-hero-content{position:absolute;bottom:0;left:0;right:0;padding:24px;}
+.det-hero-content-inner{max-width:1200px;margin:0 auto;}
+.btn-back{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background 0.18s;margin-bottom:14px;}
+.btn-back:hover{background:rgba(255,255,255,0.2);}
+.det-title{font-family:'Fraunces',serif;font-size:30px;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 12px rgba(0,0,0,0.4);}
+.det-subtitle{font-size:14px;color:rgba(255,255,255,0.6);margin-top:5px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.det-subtitle span{display:flex;align-items:center;gap:5px;}
+
+/* det body */
+.det-body{max-width:1200px;margin:0 auto;padding:32px 24px 60px;}
+.det-layout{display:grid;grid-template-columns:1fr 420px;gap:32px;align-items:start;}
+@media(max-width:860px){.det-layout{grid-template-columns:1fr;}}
+.det-info-card{background:var(--branco);border-radius:var(--r);border:1.5px solid var(--bg2);padding:24px;margin-bottom:24px;}
+.det-info-card h3{font-family:'Fraunces',serif;font-size:17px;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.det-info-card h3 i{color:var(--v4);}
+.det-info-card p{font-size:14px;color:var(--text2);line-height:1.7;}
+.det-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.det-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--v6);color:var(--v2);}
+
+/* form */
+.form-card{background:var(--branco);border-radius:var(--r);border:1.5px solid var(--bg2);padding:24px;position:sticky;top:100px;}
+.form-card h3{font-family:'Fraunces',serif;font-size:17px;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.form-card h3 i{color:var(--v4);}
+.form-card .form-sub{font-size:13px;color:var(--text3);margin-bottom:20px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.field input,.field textarea,.field select{width:100%;padding:10px 13px;border:1.5px solid var(--bg2);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;background:var(--branco);}
+.field input:focus,.field textarea:focus{border-color:var(--v4);}
+.field textarea{min-height:90px;resize:vertical;line-height:1.5;}
+.btn-submit{width:100%;padding:12px;background:var(--v2);color:#fff;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background 0.18s;}
+.btn-submit:hover{background:var(--v3);}
+.btn-submit:disabled{background:#9ca3af;cursor:not-allowed;}
+.form-feedback{margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;display:none;align-items:center;gap:8px;}
+.form-feedback.ok{background:var(--v6);color:var(--v2);border:1px solid var(--v5);display:flex;}
+.form-feedback.err{background:var(--red2);color:var(--red);border:1px solid #fecaca;display:flex;}
+
+/* communications */
+.comms-section{margin-top:8px;}
+.comms-section h3{font-family:'Fraunces',serif;font-size:17px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.comms-section h3 i{color:var(--v4);}
+.comm-list{display:flex;flex-direction:column;gap:10px;}
+.comm-card{background:var(--branco);border-radius:12px;border:1.5px solid var(--bg2);padding:15px 18px;}
+.comm-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.comm-title{font-weight:600;font-size:14px;color:var(--text);line-height:1.35;}
+.status-em{background:var(--amber2);color:var(--amber);border:1px solid #fde68a;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.status-ok{background:var(--azul2);color:var(--azul);border:1px solid #bfdbfe;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.comm-meta{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.comm-meta span{display:flex;align-items:center;gap:4px;}
+.comm-desc{font-size:13px;color:var(--text2);line-height:1.55;margin-top:8px;padding-top:8px;border-top:1px solid var(--bg2);}
+.comms-empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:14px;}
+.comms-empty i{font-size:28px;opacity:0.35;margin-bottom:8px;display:block;}
+.comms-loading{text-align:center;padding:24px;color:var(--text3);font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
+
+/* ─── STATES ─── */
+.loading-state,.error-state{grid-column:1/-1;text-align:center;padding:80px 20px;}
+.loading-state .sp{width:44px;height:44px;border:3px solid var(--bg2);border-top-color:var(--v3);border-radius:50%;animation:spin 0.75s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-state p,.error-state p{font-size:14px;color:var(--text3);}
+.loading-state h3,.error-state h3{font-family:'Fraunces',serif;font-size:21px;color:var(--text2);margin-bottom:6px;}
+.error-state i{font-size:44px;color:#fca5a5;margin-bottom:12px;}
+.btn-retry{margin-top:14px;background:var(--v2);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+.empty-search{grid-column:1/-1;text-align:center;padding:60px 20px;}
+.empty-search i{font-size:44px;color:var(--v5);margin-bottom:12px;}
+.empty-search h3{font-family:'Fraunces',serif;font-size:20px;color:var(--text2);margin-bottom:6px;}
+.empty-search p{font-size:14px;color:var(--text3);}
+
+/* ─── ERROR BAR ─── */
+.error-bar{background:var(--red2);border:1px solid #fecaca;border-radius:12px;padding:13px 18px;color:var(--red);font-size:14px;margin-bottom:24px;display:none;align-items:center;gap:10px;flex-wrap:wrap;}
+.error-bar.vis{display:flex;}
+.error-bar button{background:var(--red);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:5px;}
+
+/* ─── FOOTER ─── */
+footer{background:var(--v1);color:rgba(255,255,255,0.55);padding:36px 24px 24px;}
+.ft-inner{max-width:1200px;margin:0 auto;}
+.ft-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px;margin-bottom:28px;}
+.ft-col h4{font-family:'Fraunces',serif;font-size:15px;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ft-col p{font-size:13px;line-height:1.7;}
+.ft-col ul{list-style:none;}
+.ft-col li{font-size:13px;line-height:2;display:flex;align-items:center;gap:8px;}
+.ft-col li i{width:14px;text-align:center;opacity:0.6;font-size:12px;}
+.ft-bottom{border-top:1px solid rgba(255,255,255,0.08);padding-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.ft-bottom p,.ft-bottom span{font-size:12px;}
+.ft-status{display:flex;align-items:center;gap:7px;font-size:12px;}
+.ft-dot{width:7px;height:7px;border-radius:50%;background:#555;}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:640px){
+  .hd-text p{display:none;}
+  .hero{padding:30px 16px 36px;}
+  .hero-title{font-size:26px;}
+  .hero-chips{display:none;}
+  .portal-main,.det-body{padding:20px 16px 48px;}
+  .uc-grid{grid-template-columns:1fr 1fr;}
+  .det-hero{height:240px;}
+  .det-title{font-size:22px;}
+  .ft-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ HEADER ══════ -->
+<header>
+  <div class="hd">
+    <div class="hd-brand">
+      <div class="hd-logo"><i class="fa-solid fa-leaf" style="color:#1a4a2e;font-size:18px"></i></div>
+      <div class="hd-text">
+        <h1>EcoGuard SC</h1>
+        <p>Zona Costeira Catarinense</p>
+      </div>
+    </div>
+    <div class="hd-right">
+      <span class="badge-hd badge-loading" id="badge">
+        <span class="dot"></span>
+        <span id="badgeTxt">Carregando</span>
+      </span>
+    </div>
+  </div>
+</header>
+
+<!-- ══════ PORTAL VIEW ══════ -->
+<div id="view-portal">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-top">
+        <div class="hero-copy">
+          <div class="hero-eyebrow"><i class="fa-solid fa-shield-halved fa-xs"></i> Portal Público · Santa Catarina</div>
+          <h2 class="hero-title">Unidades de <em>Conservação</em><br>da Zona Costeira</h2>
+          <p class="hero-sub">Conheça, fiscalize e contribua com as áreas protegidas do litoral catarinense. Seu relato faz diferença.</p>
+        </div>
+        <div class="hero-chips">
+          <div class="chip"><div class="chip-val" id="chipUC">—</div><div class="chip-lbl"><i class="fa-solid fa-tree fa-xs"></i> Unidades</div></div>
+          <div class="chip"><div class="chip-val" id="chipMun">—</div><div class="chip-lbl"><i class="fa-solid fa-city fa-xs"></i> Municípios</div></div>
+          <div class="chip"><div class="chip-val" id="chipComm">—</div><div class="chip-lbl"><i class="fa-solid fa-comments fa-xs"></i> Relatos</div></div>
+        </div>
+      </div>
+      <div class="search-outer">
+        <i class="fa-solid fa-magnifying-glass s-icon"></i>
+        <input class="search-input" type="text" id="searchInput"
+          placeholder="Buscar unidade de conservação..."
+          autocomplete="off" autocorrect="off" autocapitalize="off"
+          spellcheck="false" data-form-type="other" data-lpignore="true"/>
+        <button class="s-clear" id="sClear"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p class="s-hint">Pressione <kbd>/</kbd> para buscar</p>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="portal-main">
+    <div class="error-bar" id="errBar">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="errMsg">Erro ao carregar.</span>
+      <button onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Tentar novamente</button>
+    </div>
+
+    <div class="section-hd">
+      <h2><i class="fa-solid fa-map-location-dot"></i> Parques e Reservas</h2>
+      <p class="result-count" id="resCnt"></p>
+    </div>
+
+    <div class="uc-grid" id="ucGrid">
+      <div class="loading-state" style="grid-column:1/-1">
+        <div class="sp"></div>
+        <h3>Carregando unidades...</h3>
+        <p>Buscando no banco de dados</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /view-portal -->
+
+
+<!-- ══════ DETAIL VIEW ══════ -->
+<div id="view-detail">
+
+  <!-- HERO banner -->
+  <div class="det-hero" id="detHero">
+    <div class="det-hero-ph" id="detHeroPh" style="display:none"><i class="fa-solid fa-tree" style="font-size:60px;color:rgba(255,255,255,0.3)"></i></div>
+    <img class="det-hero-img" id="detHeroImg" src="" alt="" onerror="this.style.display='none';document.getElementById('detHeroPh').style.display='flex'"/>
+    <div class="det-hero-overlay"></div>
+    <div class="det-hero-content">
+      <div class="det-hero-content-inner">
+        <button class="btn-back" onclick="showPortal()">
+          <i class="fa-solid fa-arrow-left fa-xs"></i> Voltar ao portal
+        </button>
+        <h2 class="det-title" id="detTitle">—</h2>
+        <div class="det-subtitle">
+          <span><i class="fa-solid fa-calendar fa-xs"></i> <span id="detDate">—</span></span>
+          <span><i class="fa-solid fa-building-columns fa-xs"></i> <span id="detInst">—</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="det-body">
+    <div class="det-layout">
+
+      <!-- LEFT: info + communications -->
+      <div class="det-left">
+
+        <!-- Sobre -->
+        <div class="det-info-card">
+          <h3><i class="fa-solid fa-circle-info"></i> Sobre a Unidade</h3>
+          <p id="detDesc">—</p>
+          <div class="det-tags" id="detTags"></div>
+        </div>
+
+        <!-- Communications -->
+        <div class="det-info-card comms-section">
+          <h3><i class="fa-solid fa-comments"></i> Últimas comunicações recebidas</h3>
+          <div id="commList">
+            <div class="comms-loading"><div class="sp" style="width:22px;height:22px;border-width:2px;margin:0"></div> Carregando...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: form -->
+      <div class="det-right">
+        <div class="form-card">
+          <h3><i class="fa-solid fa-paper-plane"></i> Enviar Relato</h3>
+          <p class="form-sub">Contribua com a gestão desta unidade. Seu relato será analisado pelo IMA-SC.</p>
+
+          <div class="field">
+            <label>Seu e-mail</label>
+            <input type="email" id="fEmail" placeholder="nome@email.com"
+              autocomplete="off" data-lpignore="true"/>
+          </div>
+          <div class="field">
+            <label>Título do relato</label>
+            <input type="text" id="fTitulo" placeholder="Ex: Trilha com lixo acumulado"
+              autocomplete="off" data-lpignore="true"/>
+          </div>
+          <div class="field">
+            <label>Descrição detalhada</label>
+            <textarea id="fDesc" placeholder="Descreva o que observou, onde e quando..."></textarea>
+          </div>
+
+          <button class="btn-submit" id="btnSubmit" onclick="submitComm()">
+            <i class="fa-solid fa-paper-plane fa-sm"></i> Enviar Relato
+          </button>
+          <div class="form-feedback" id="formFeedback"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /view-detail -->
+
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+  <div class="ft-inner">
+    <div class="ft-grid">
+      <div class="ft-col">
+        <h4><i class="fa-solid fa-leaf"></i> EcoGuard SC</h4>
+        <p>Portal público de conscientização e participação cidadã nas Unidades de Conservação da zona costeira catarinense.</p>
+      </div>
+      <div class="ft-col">
+        <h4><i class="fa-solid fa-building-columns"></i> Gestão</h4>
+        <ul>
+          <li><i class="fa-solid fa-shield"></i> Instituto do Meio Ambiente de SC</li>
+          <li><i class="fa-solid fa-map"></i> Zona costeira catarinense</li>
+          <li><i class="fa-solid fa-globe"></i> ima.sc.gov.br</li>
+        </ul>
+      </div>
+      <div class="ft-col">
+        <h4><i class="fa-solid fa-circle-question"></i> Sobre</h4>
+        <ul>
+          <li><i class="fa-solid fa-graduation-cap"></i> Projeto Integrador VI</li>
+          <li><i class="fa-solid fa-university"></i> UNIVALI — ADS 2026</li>
+          <li><i class="fa-solid fa-code"></i> EcoGuard SC v1.0</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <div class="ft-status">
+        <div class="ft-dot" id="ftDot"></div>
+        <span id="ftTxt">Aguardando conexão...</span>
+      </div>
+      <span id="ftCount"></span>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+/* ── SUPABASE ── */
+const URL_ = "https://qxtimhlhvgetkrzvtsoh.supabase.co";
+const KEY  = "sb_publishable_azVTQXcJCSOF48M_ucP2KA_6YHvQpnN";
+const HDR  = {"apikey":KEY,"Authorization":`Bearer ${KEY}`,"Content-Type":"application/json"};
+
+/* ── STATE ── */
+let allUnits = [], filteredUnits = [], currentUnit = null;
+
+/* ── API ── */
+async function api(path, opts={}){
+  const r = await fetch(`${URL_}/rest/v1/${path}`, {...opts, headers:{...HDR,...(opts.headers||{})}});
+  if(!r.ok){ const b=await r.json().catch(()=>({})); throw new Error(b.message||`Erro HTTP ${r.status}`); }
+  return opts.method==="POST" ? r : r.json();
+}
+
+/* ── FORMAT ── */
+const fmtDate = d => new Date(d+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"});
+const fmtDateTime = d => new Date(d).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+
+/* ── LOAD ── */
+async function loadData(){
+  try{
+    const [units, commsCount] = await Promise.all([
+      api("unidade_conservacao?select=*,unidade_municipio(municipio(nome)),instituicao(nome)&order=nome.asc"),
+      api("comunicacao?select=id")
+    ]);
+    allUnits = units;
+    filteredUnits = [...units];
+
+    // stats
+    const muns = new Set();
+    units.forEach(u => (u.unidade_municipio||[]).forEach(um => muns.add(um.municipio?.nome)));
+    document.getElementById("chipUC").textContent = units.length;
+    document.getElementById("chipMun").textContent = muns.size;
+    document.getElementById("chipComm").textContent = Array.isArray(commsCount) ? commsCount.length : "—";
+
+    // badge
+    setBadge("live");
+    document.getElementById("ftDot").style.background = "#74c69d";
+    document.getElementById("ftTxt").textContent = `Banco de dados conectado — ${units.length} unidades carregadas`;
+    document.getElementById("ftCount").textContent = `${units.length} UC · ${muns.size} municípios`;
+
+    renderGrid(units);
+  }catch(e){
+    setBadge("err");
+    document.getElementById("errMsg").textContent = e.message;
+    document.getElementById("errBar").classList.add("vis");
+    document.getElementById("ftDot").style.background = "#f87171";
+    document.getElementById("ftTxt").textContent = "Falha na conexão";
+    document.getElementById("ucGrid").innerHTML = `<div class="error-state">
+      <i class="fa-solid fa-plug-circle-xmark"></i>
+      <h3>Sem conexão</h3>
+      <p>${e.message}</p>
+      <button class="btn-retry" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Tentar novamente</button>
+    </div>`;
+  }
+}
+
+function setBadge(type){
+  const b = document.getElementById("badge");
+  const t = document.getElementById("badgeTxt");
+  b.className = "badge-hd badge-"+type;
+  t.textContent = type==="live"?"Ao vivo":type==="err"?"Erro":"Carregando";
+}
+
+/* ── RENDER GRID ── */
+function renderGrid(units){
+  const cnt = document.getElementById("resCnt");
+  const grid = document.getElementById("ucGrid");
+  const q = document.getElementById("searchInput").value.trim();
+  cnt.innerHTML = `<strong>${units.length}</strong> unidade${units.length!==1?"s":""} encontrada${units.length!==1?"s":""}${q?` para "<em>${q}</em>"`:""}`;
+
+  if(!units.length){
+    grid.innerHTML = `<div class="empty-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <h3>Nenhuma unidade encontrada</h3>
+      <p>Tente um termo diferente de busca</p>
+    </div>`; return;
+  }
+
+  grid.innerHTML = units.map((u,i)=>{
+    const muns = (u.unidade_municipio||[]).map(um=>um.municipio?.nome).filter(Boolean).join(", ")||"—";
+    const inst = u.instituicao?.nome || "—";
+    const hasImg = u.imagem_url && u.imagem_url.startsWith("http");
+    return `<div class="uc-card" onclick="showDetail(${u.id})" style="animation-delay:${Math.min(i,8)*0.05}s">
+      ${hasImg
+        ? `<img class="uc-img" src="${u.imagem_url}" alt="${u.nome}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+           <div class="uc-img-ph" style="display:none"><i class="fa-solid fa-tree" style="color:rgba(255,255,255,0.5)"></i></div>`
+        : `<div class="uc-img-ph"><i class="fa-solid fa-tree" style="color:rgba(255,255,255,0.5)"></i></div>`}
+      <div class="uc-body">
+        <div class="uc-meta"><i class="fa-regular fa-calendar fa-xs"></i> Criado em: ${fmtDate(u.data_criacao)}</div>
+        <h3 class="uc-name">${u.nome}</h3>
+        <div class="uc-mun"><i class="fa-solid fa-location-dot fa-xs"></i> ${muns}</div>
+        <p class="uc-desc">${u.descricao||""}</p>
+        <button class="btn-det"><i class="fa-solid fa-eye fa-xs"></i> Ver Detalhes</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* ── SEARCH ── */
+document.getElementById("searchInput").addEventListener("input", function(){
+  const q = this.value.trim().toLowerCase();
+  document.getElementById("sClear").classList.toggle("vis", !!q);
+  const filtered = q ? allUnits.filter(u=>
+    u.nome.toLowerCase().includes(q)||
+    (u.descricao||"").toLowerCase().includes(q)||
+    (u.unidade_municipio||[]).some(um=>(um.municipio?.nome||"").toLowerCase().includes(q))
+  ) : allUnits;
+  renderGrid(filtered);
+});
+document.getElementById("sClear").addEventListener("click",()=>{
+  document.getElementById("searchInput").value="";
+  document.getElementById("sClear").classList.remove("vis");
+  renderGrid(allUnits);
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="/"&&document.activeElement!==document.getElementById("searchInput")&&document.getElementById("view-portal").style.display!=="none"){
+    e.preventDefault(); document.getElementById("searchInput").focus();
+  }
+});
+
+/* ── NAVIGATION ── */
+function showPortal(){
+  document.getElementById("view-detail").style.display="none";
+  document.getElementById("view-portal").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+  currentUnit = null;
+}
+
+async function showDetail(id){
+  const unit = allUnits.find(u=>u.id===id);
+  if(!unit) return;
+  currentUnit = unit;
+
+  // populate hero
+  const img = document.getElementById("detHeroImg");
+  const ph  = document.getElementById("detHeroPh");
+  if(unit.imagem_url && unit.imagem_url.startsWith("http")){
+    img.src = unit.imagem_url; img.style.display="block"; ph.style.display="none";
+  } else {
+    img.style.display="none"; ph.style.display="flex";
+  }
+
+  document.getElementById("detTitle").textContent = unit.nome;
+  document.getElementById("detDate").textContent = "Criado em " + fmtDate(unit.data_criacao);
+  document.getElementById("detInst").textContent = unit.instituicao?.nome || "—";
+  document.getElementById("detDesc").textContent = unit.descricao || "—";
+
+  // tags
+  const muns = (unit.unidade_municipio||[]).map(um=>um.municipio?.nome).filter(Boolean);
+  document.getElementById("detTags").innerHTML = muns.map(m=>
+    `<span class="det-tag"><i class="fa-solid fa-location-dot fa-xs"></i> ${m}</span>`
+  ).join("");
+
+  // switch view
+  document.getElementById("view-portal").style.display="none";
+  document.getElementById("view-detail").style.display="block";
+  window.scrollTo({top:0,behavior:"instant"});
+
+  // reset form
+  ["fEmail","fTitulo","fDesc"].forEach(id=>document.getElementById(id).value="");
+  const fb = document.getElementById("formFeedback");
+  fb.className="form-feedback"; fb.textContent="";
+
+  // load communications
+  await loadComms(id);
+}
+
+/* ── COMMUNICATIONS ── */
+async function loadComms(unitId){
+  const list = document.getElementById("commList");
+  list.innerHTML = `<div class="comms-loading"><div class="sp" style="width:22px;height:22px;border-width:2px;margin:0"></div> Carregando relatos...</div>`;
+  try{
+    const data = await api(`comunicacao?unidade_conservacao_id=eq.${unitId}&order=data_hora_envio.desc`);
+    if(!data.length){
+      list.innerHTML = `<div class="comms-empty"><i class="fa-regular fa-comment-dots"></i> Nenhum relato enviado ainda. Seja o primeiro a contribuir!</div>`;
+      return;
+    }
+    list.innerHTML = `<div class="comm-list">${data.map(c=>{
+      const status = c.status===1
+        ? `<span class="status-ok"><i class="fa-solid fa-circle-check fa-xs"></i> Analisada</span>`
+        : `<span class="status-em"><i class="fa-solid fa-clock fa-xs"></i> Em análise</span>`;
+      return `<div class="comm-card">
+        <div class="comm-card-top">
+          <span class="comm-title">${c.titulo}</span>
+          ${status}
+        </div>
+        <div class="comm-meta">
+          <span><i class="fa-regular fa-calendar fa-xs"></i> ${fmtDateTime(c.data_hora_envio)}</span>
+          <span><i class="fa-regular fa-envelope fa-xs"></i> ${c.email_comunicante}</span>
+        </div>
+        <div class="comm-desc">${c.descricao_detalhada}</div>
+      </div>`;
+    }).join("")}</div>`;
+  }catch(e){
+    list.innerHTML = `<div class="comms-empty" style="color:#dc2626"><i class="fa-solid fa-triangle-exclamation"></i> Erro ao carregar relatos</div>`;
+  }
+}
+
+/* ── SUBMIT FORM ── */
+async function submitComm(){
+  const email = document.getElementById("fEmail").value.trim();
+  const titulo = document.getElementById("fTitulo").value.trim();
+  const desc = document.getElementById("fDesc").value.trim();
+  const fb = document.getElementById("formFeedback");
+  const btn = document.getElementById("btnSubmit");
+
+  fb.className="form-feedback"; fb.textContent=""; fb.style.display="none";
+
+  if(!email||!titulo||!desc){
+    fb.innerHTML=`<i class="fa-solid fa-triangle-exclamation"></i> Preencha todos os campos antes de enviar.`;
+    fb.className="form-feedback err"; return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    fb.innerHTML=`<i class="fa-solid fa-triangle-exclamation"></i> Informe um e-mail válido.`;
+    fb.className="form-feedback err"; return;
+  }
+
+  btn.disabled=true;
+  btn.innerHTML=`<span class="sp" style="width:16px;height:16px;border-width:2px;margin:0;border-top-color:white"></span> Enviando...`;
+
+  try{
+    await api("comunicacao",{
+      method:"POST",
+      headers:{"Prefer":"return=minimal"},
+      body:JSON.stringify({
+        titulo, descricao_detalhada:desc,
+        data_hora_envio: new Date().toISOString(),
+        email_comunicante: email,
+        status: 0,
+        unidade_conservacao_id: currentUnit.id
+      })
+    });
+    fb.innerHTML=`<i class="fa-solid fa-circle-check"></i> Relato enviado com sucesso! Em breve será analisado pelo IMA-SC.`;
+    fb.className="form-feedback ok";
+    ["fEmail","fTitulo","fDesc"].forEach(id=>document.getElementById(id).value="");
+    await loadComms(currentUnit.id);
+  }catch(e){
+    fb.innerHTML=`<i class="fa-solid fa-triangle-exclamation"></i> Erro ao enviar: ${e.message}`;
+    fb.className="form-feedback err";
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=`<i class="fa-solid fa-paper-plane fa-sm"></i> Enviar Relato`;
+  }
+}
+
+/* ── INIT ── */
+loadData();
+</script>
+
+</body>
+</html>
